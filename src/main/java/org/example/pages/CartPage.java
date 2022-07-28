@@ -3,26 +3,58 @@ package org.example.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
-public class CartPage extends BasePage{
+import java.util.List;
 
-   public CartPage(WebDriver driver) {
-       super(driver);
-   }
-    private final By checkoutButton = By.id("checkout");
-    private final By continueShoppingButton = By.id("continue-shopping");
+public class CartPage extends BasePage {
 
-    public String productNameInCart() {
-        WebElement productName = driver.findElement(By.className("inventory_item_name"));
-        return productName.getText();
+    @FindBy(css = ".title")
+    private WebElement title;
+    @FindBy(id = "checkout")
+    private WebElement checkout;
+    @FindBy(id = "continue-shopping")
+    private WebElement continueShoppingButton;
+    @FindBy(xpath = "//div[@class='inventory_item_name']")
+    private List<WebElement> allProductsInCart;
+
+
+    private final String productInCart = "//div[text()='%s']//ancestor::div[@class='cart_item']";
+    private final String removeButton = "//div[text()='%s']//ancestor::div[@class='cart_item']//button[text()='Remove']";
+    private final String product = "//div[text()='%s']//ancestor::div[@class='cart_item']";
+
+    public CartPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    public String productPriceInCart() {
-        WebElement productPrice = driver.findElement(By.className("inventory_item_price"));
-        return productPrice.getText();
+    public void open() {
+        driver.get(BASE_URL + "cart.html");
     }
 
-    public void goToCheckout() {
-        driver.findElement(checkoutButton).click();
+    public List<WebElement> getAllProductsInCart() {
+        return allProductsInCart;
+    }
+
+    public void checkout() {
+        checkout.click();
+    }
+
+    public void removeProductFromCart(String productName) {
+        driver.findElement(By.xpath(String.format(removeButton, productName))).click();
+    }
+
+    public WebElement getProduct(String productName) {
+        By fullLocator = By.xpath(String.format(product, productName));
+        return driver.findElement(fullLocator);
+    }
+
+    public WebElement getTitle() {
+        return title;
+    }
+
+    public void continueShopping() {
+        continueShoppingButton.click();
     }
 }
